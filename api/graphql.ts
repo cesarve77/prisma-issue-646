@@ -1,40 +1,44 @@
-import { schema } from "nexus"
-      
+import { schema } from 'nexus'
+
 schema.objectType({
-  name: "World",
+  name: 'User',
   definition(t) {
     t.model.id()
-    t.model.name()
-    t.model.population()
-  }
+    t.model.foo()
+    t.model.bar()
+    t.model.text()
+  },
 })
-      
+
+schema.objectType({
+  name: 'Foo',
+  definition(t) {
+    t.model.id()
+    t.model.text()
+  },
+})
+
+schema.objectType({
+  name: 'Bar',
+  definition(t) {
+    t.model.id()
+    t.model.text()
+  },
+})
+
 schema.queryType({
   definition(t) {
-    t.field("hello", {
-      type: "World",
-      args: {
-        world: schema.stringArg({ required: false })
-      },
-      async resolve(_root, args, ctx) {
-        const worldToFindByName = args.world ?? 'Earth'
-        const world = await ctx.db.world.findOne({
-          where: {
-            name: worldToFindByName
-          }
-        })
-      
-        if (!world) throw new Error(`No such world named "${args.world}"`)
-      
-        return world
-      }
-    })
-  
-    t.list.field('worlds', {
-      type: 'World',
-      resolve(_root, _args, ctx) { 
-        return ctx.db.world.findMany()
-      }
-    })
+    t.crud.users({pagination: true, filtering: true, ordering:true})
+    t.crud.foos({pagination: true, filtering: true, ordering:true})
+    t.crud.bars({pagination: true, filtering: true, ordering:true})
+  }
+})
+
+
+schema.mutationType({
+  definition(t) {
+    t.crud.createOneUser()
+    t.crud.createOneFoo()
+    t.crud.createOneBar()
   }
 })
